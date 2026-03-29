@@ -26,9 +26,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 from sklearn.calibration import CalibratedClassifierCV
 
 model = XGBClassifier(
-    n_estimators=300,
-    max_depth=6,
-    learning_rate=0.05,
+    n_estimators=200,
+    max_depth=4,          
+    learning_rate=0.1,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    reg_lambda=2,       
+    reg_alpha=1,
     random_state=42
 )
 
@@ -42,7 +46,19 @@ model = calibrated_model
 y_pred = model.predict(X_test)
 probs = model.predict_proba(X_test)[:,1]
 #print(probs)
-print(set(probs))
+l=[0,0,0,0,0,0,0,0,0,0]
+for x in probs:
+    if x < 0.1: l[0] += 1
+    elif x < 0.2: l[1] += 1
+    elif x < 0.3: l[2] += 1
+    elif x < 0.4: l[3] += 1
+    elif x < 0.5: l[4] += 1
+    elif x < 0.6: l[5] += 1
+    elif x < 0.7: l[6] += 1
+    elif x < 0.8: l[7] += 1
+    elif x < 0.9: l[8] += 1
+    else: l[9] += 1
+print(l)
 accuracy = accuracy_score(y_test, y_pred)
 print("Accuracy:", accuracy)
 

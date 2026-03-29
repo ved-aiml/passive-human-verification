@@ -32,10 +32,7 @@ function safe(value) {
     return value;
 }
 function calculateFeatures(){
-    // All time deltas from Date.now() are in milliseconds.
-    // The training data uses SECONDS, so we must convert ms → s everywhere.
 
-    // ── Mouse speed (px per second) ──
     let speeds = [];
     for (let i = 1; i < mouseMovements.length; i++) {
         const dx = mouseMovements[i].x - mouseMovements[i-1].x;
@@ -48,11 +45,11 @@ function calculateFeatures(){
     let avg_mouse_speed = speeds.length
         ? speeds.reduce((a,b)=>a+b,0) / speeds.length
         : 0;
+   
     let mouse_speed_variance = speeds.length
         ? speeds.reduce((sum, s) => sum + Math.pow(s - avg_mouse_speed, 2), 0) / speeds.length
         : 0;
-
-    // ── Click intervals (seconds) ──
+ 
     let clickIntervals = [];
     for (let i = 1; i < clicks.length; i++) {
         clickIntervals.push((clicks[i] - clicks[i-1]) / 1000); // ms → s
@@ -64,7 +61,7 @@ function calculateFeatures(){
         ? clickIntervals.reduce((sum, c) => sum + Math.pow(c - click_interval_avg, 2), 0) / clickIntervals.length
         : 0;
 
-    // ── Typing intervals (seconds) ──
+
     let typeIntervals=[];
     for(let i=1;i<keyStrokes.length;i++){
         typeIntervals.push((keyStrokes[i].time-keyStrokes[i-1].time) / 1000); // ms → s
@@ -78,11 +75,10 @@ function calculateFeatures(){
 
     let backspace_count=keyStrokes.filter((k)=>k.key==="Backspace").length;
 
-    // ── Scroll speed (px per second) ──
     let scrollSpeeds = [];
     for (let i = 1; i < scrolls.length; i++) {
         const dy = Math.abs(scrolls[i].y - scrolls[i-1].y);
-        const dt = (scrolls[i].time - scrolls[i-1].time) / 1000; // seconds
+        const dt = (scrolls[i].time - scrolls[i-1].time) / 1000; 
         if (dt > 0) {
             scrollSpeeds.push(dy / dt);
         }
@@ -91,25 +87,24 @@ function calculateFeatures(){
         ? scrollSpeeds.reduce((a,b)=>a+b,0) / scrollSpeeds.length
         : 0;
 
-    // ── Hesitation time (seconds) ──
     let hesitation_time = 0;
     for (let i = 1; i < mouseMovements.length; i++) {
-        let dt = mouseMovements[i].time - mouseMovements[i-1].time; // ms
+        let dt = mouseMovements[i].time - mouseMovements[i-1].time; 
         if (dt > 1000) {
-            hesitation_time += dt / 1000; // convert to seconds
+            hesitation_time += dt / 1000; 
         }
     }
 
-    // ── Session duration (seconds) ──
     let session_duration_ms = mouseMovements.length>0
         ? mouseMovements[mouseMovements.length-1].time - mouseMovements[0].time
         : 0;
-    let session_duration = session_duration_ms / 1000; // seconds
+    let session_duration = session_duration_ms / 1000; 
 
-    // ── Actions per second ──
+    let total_actions = clicks.length + keyStrokes.length;
+
     let actions_per_second = session_duration > 0
-        ? mouseMovements.length / session_duration
-        : 0;
+    ? total_actions / session_duration
+    : 0;
 
     // ── Idle ratio 
     let idle_time=0;
